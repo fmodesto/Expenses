@@ -1,2 +1,28 @@
 {% extends "layout.html" %}
 
+{% block title %}Expenses{% endblock %}
+
+{% block navigation %}
+    <a href="{{ url_for('add') }}" class="navbar-toggle">
+        <span class="glyphicon glyphicon-plus"/>
+    </a>
+{% endblock %}
+
+{% block page_content %}
+    <div class="list-group">
+        {% for expense in expenses %}
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <img src="uploads/{{ expense.attachment }}" onerror="this.src='../static/expenses.jpg';" class="img-thumbnail">
+                    </div>
+                    <div class="col-sm-8">
+                        <p class="list-group-item-text">{{ expense.concept }}</p>
+                        <p class="list-group-item-text">{{ expense.date }}</p>
+                        <p class="list-group-item-text">{{ expense.price }} {{ expense.currency }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

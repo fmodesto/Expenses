@@ -18,6 +18,12 @@
 
 {% block title %}Add expense{% endblock %}
 
+{% block navigation %}
+    <a href="{{ url_for('index') }}" class="navbar-toggle">
+        <span class="glyphicon glyphicon-home"/>
+    </a>
+{% endblock %}
+
 {% block page_content %}
     <div class="form-group">
         <div class="form-control btn btn-info input-lg btn-lg input-mask">

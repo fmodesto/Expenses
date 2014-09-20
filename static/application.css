@@ -31,3 +31,12 @@ input[type=number].input-lg {
     margin-top: 15px;
     width: 100%;
 }
+
+.img-thumbnail {
+    max-width: 80px !important;
+}
+
+.navbar-toggle {
+    display: block !important;
+    color: #ffffff;
+}

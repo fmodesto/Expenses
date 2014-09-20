@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 import os
 import urllib
 from flask import Flask, render_template, url_for, redirect
@@ -9,6 +10,8 @@ from wtforms import FileField, DecimalField, SelectField, DateField, SubmitField
 from wtforms.validators import DataRequired
 from wtforms.widgets.html5 import NumberInput, DateInput
 from datetime import date
+
+TWOPLACES = Decimal(10) ** -2
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
@@ -40,8 +43,14 @@ class ExpenseForm(Form):
     submit = SubmitField('Submit')
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
+    expenses = Expense.query.all()
+    return render_template('index.html', expenses=expenses)
+
+
+@app.route('/add', methods=['GET', 'POST'])
+def add():
     form = ExpenseForm()
 
     if form.validate_on_submit():
@@ -51,7 +60,7 @@ def index():
             urllib.urlretrieve(form.image.data, os.path.join(app.config['EXPENSES_UPLOAD'], filename))
 
         expense = Expense(
-            price=str(form.price.data),
+            price=str(form.price.data.quantize(TWOPLACES)),
             currency=form.currency.data,
             concept=form.concept.data,
             date=form.date.data,
@@ -64,4 +73,4 @@ def index():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', static_files={'/uploads': app.config['EXPENSES_UPLOAD']})
