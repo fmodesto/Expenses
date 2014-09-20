@@ -25,4 +25,21 @@
             </div>
         {% endfor %}
     </div>
+    <!-- Modal -->
+    <div id="imagepreview" class="image-preview modal fade">
+        <img src="">
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $("body").on("click", "img.img-thumbnail", function () {
+            $('#imagepreview > img').attr('src', $(this).attr('src'));
+            $('#imagepreview').modal('show');
+            $('#imagepreview').on('click', function () {
+                $('#imagepreview').modal('hide');
+            });
+        });
+    </script>
 {% endblock %}

@@ -36,3 +36,11 @@ input[type=number].input-lg {
     display: block !important;
     color: #ffffff;
 }
+
+.image-preview {
+    padding: 10px;
+}
+
+.image-preview > img {
+    width: 100%;
+}
