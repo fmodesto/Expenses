@@ -1,10 +1,11 @@
 import uuid
 import os
+import urllib
 from flask import Flask, render_template, url_for, redirect
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import Form
-from wtforms import FileField, DecimalField, SelectField, DateField, SubmitField
+from wtforms import FileField, DecimalField, SelectField, DateField, SubmitField, HiddenField
 from wtforms.validators import DataRequired
 from wtforms.widgets.html5 import NumberInput, DateInput
 from datetime import date
@@ -27,11 +28,11 @@ class Expense(db.Model):
     currency = db.Column(db.Enum('GBR', 'EUR'), nullable=False)
     concept = db.Column(db.Enum('MEALS', 'ACCOMODATION', 'TRANSPORT', 'FLIGHTS', 'CAR_RENTAL', 'OTHER'), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    attachment = db.Column(db.Text)
+    attachment = db.Column(db.Binary, )
 
 
 class ExpenseForm(Form):
-    upload = FileField(validators=[DataRequired()])
+    image = HiddenField()
     price = DecimalField(widget=NumberInput())
     currency = SelectField(choices=app.config['EXPENSES_CURRENCY'])
     concept = SelectField(choices=app.config['EXPENSES_CONCEPT'])
@@ -44,17 +45,17 @@ def index():
     form = ExpenseForm()
 
     if form.validate_on_submit():
-        file = None
-        if form.upload.data:
-            file = str(uuid.uuid4())
-            form.upload.data.save(os.path.join(app.config['EXPENSES_UPLOAD'], file))
+        filename = None
+        if form.image.data:
+            filename = str(uuid.uuid4())
+            urllib.urlretrieve(form.image.data, os.path.join(app.config['EXPENSES_UPLOAD'], filename))
 
         expense = Expense(
             price=str(form.price.data),
             currency=form.currency.data,
             concept=form.concept.data,
             date=form.date.data,
-            attachment=file)
+            attachment=filename)
         db.session.add(expense)
         db.session.commit()
         return redirect(url_for('index'))

@@ -19,14 +19,15 @@
 {% block title %}Add expense{% endblock %}
 
 {% block page_content %}
-    <form method="post" class="form" enctype="multipart/form-data">
+    <div class="form-group">
+        <div class="form-control btn btn-info input-lg btn-lg input-mask">
+            <span class="glyphicon glyphicon-camera"></span>
+            <input accept="image/*" id="upload" type="file">
+        </div>
+    </div>
+    <form method="post" class="form">
         {{ form.hidden_tag() }}
-        {% call add_field(form.upload) %}
-            <div class="form-control btn btn-info input-lg btn-lg input-mask">
-                <span class="glyphicon glyphicon-camera"></span>
-                {{ form.upload(id='upload', accept='image/*') }}
-            </div>
-        {% endcall %}
+        {{ form.image(id='image') }}
         {% call add_field(form.price) %}
             <div class="input-group">
                 {{ form.price(class='form-control input-lg') }}
@@ -46,12 +47,23 @@
 
 {% block scripts %}
     {{ super() }}
+    <script src="../static/jquery.exif.js"></script>
+    <script src="../static/jquery.canvasResize.js"></script>
     <script>
         $(function () {
             $('#upload').on("change", function (event) {
-                if (event.target.files.length == 1 && event.target.files[0].type.indexOf("image/") == 0) {
-                    $("#upload-image").attr("src", URL.createObjectURL(event.target.files[0]));
-                }
+                var file = event.target.files[0];
+                $.canvasResize(file, {
+                    width: 800,
+                    height: 800,
+                    crop: false,
+                    quality: 90,
+                    //rotate: 90,
+                    callback: function (data, width, height) {
+                        $("#upload-image").attr('src', data);
+                        $("#image").val(data);
+                    }
+                });
             });
             $('#currency').on("change", function () {
                 console.log(this.value);
