@@ -1,0 +1,33 @@
+select.input-lg,
+input[type=date].input-lg,
+input[type=number].input-lg {
+    -webkit-appearance: none;
+    line-height: inherit;
+}
+
+.input-mask {
+    position: relative;
+    overflow: hidden;
+}
+
+.input-mask input,
+.input-mask select {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+.upload-image {
+    margin-top: 15px;
+    width: 100%;
+}

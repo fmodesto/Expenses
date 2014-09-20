@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% macro add_field(field) %}
+    <div class="form-group{% if field.errors %} has-error{% endif %}">
+        {% if caller %}
+            {{ caller() }}
+        {% else %}
+            {{ field(**kwargs) }}
+        {% endif %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <p class="help-block">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% block title %}Add expense{% endblock %}
+
+{% block page_content %}
+    <form method="post" class="form" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {% call add_field(form.upload) %}
+            <div class="form-control btn btn-info input-lg btn-lg input-mask">
+                <span class="glyphicon glyphicon-camera"></span>
+                {{ form.upload(id='upload', accept='image/*') }}
+            </div>
+        {% endcall %}
+        {% call add_field(form.price) %}
+            <div class="input-group">
+                {{ form.price(class='form-control input-lg') }}
+                <div class="input-group-addon input-mask">
+                <span id="currency-icon"
+                      class="glyphicon {% if form.currency.data == 'EUR' %}glyphicon-euro{% else %}glyphicon-gbp{% endif %}"></span>
+                    {{ form.currency(id='currency') }}
+                </div>
+            </div>
+        {% endcall %}
+        {{ add_field(form.concept, class='form-control input-lg') }}
+        {{ add_field(form.date, class='form-control input-lg') }}
+        {{ form.submit(class='btn btn-default btn-lg pull-right') }}
+    </form>
+    <img id="upload-image" class="upload-image">
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $(function () {
+            $('#upload').on("change", function (event) {
+                if (event.target.files.length == 1 && event.target.files[0].type.indexOf("image/") == 0) {
+                    $("#upload-image").attr("src", URL.createObjectURL(event.target.files[0]));
+                }
+            });
+            $('#currency').on("change", function () {
+                console.log(this.value);
+                $("#currency-icon")
+                        .removeClass("glyphicon-gbp")
+                        .removeClass("glyphicon-euro")
+                        .addClass(this.value === 'GBP' ? "glyphicon-gbp" : "glyphicon-euro");
+            });
+        })
+    </script>
+{% endblock %}
