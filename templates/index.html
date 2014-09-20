@@ -13,10 +13,10 @@
         {% for expense in expenses %}
             <div class="list-group-item">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-xs-4 col-sm-2">
                         <img src="uploads/{{ expense.attachment }}" onerror="this.src='../static/expenses.jpg';" class="img-thumbnail">
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-xs-8 col-sm-10">
                         <p class="list-group-item-text">{{ expense.concept }}</p>
                         <p class="list-group-item-text">{{ expense.date }}</p>
                         <p class="list-group-item-text">{{ expense.price }} {{ expense.currency }}</p>

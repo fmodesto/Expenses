@@ -32,10 +32,6 @@ input[type=number].input-lg {
     width: 100%;
 }
 
-.img-thumbnail {
-    max-width: 80px !important;
-}
-
 .navbar-toggle {
     display: block !important;
     color: #ffffff;
