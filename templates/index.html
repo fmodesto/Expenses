@@ -35,10 +35,11 @@
     {{ super() }}
     <script>
         $("body").on("click", "img.img-thumbnail", function () {
-            $('#imagepreview > img').attr('src', $(this).attr('src'));
-            $('#imagepreview').modal('show');
-            $('#imagepreview').on('click', function () {
-                $('#imagepreview').modal('hide');
+            var image = $('#imagepreview');
+            image.find('> img').attr('src', $(this).attr('src'));
+            image.modal('show');
+            image.on('click', function () {
+                image.modal('hide');
             });
         });
     </script>
