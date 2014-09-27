@@ -9,6 +9,13 @@
 {% endblock %}
 
 {% block page_content %}
+
+    <select class="form-control input-lg" id="date">
+        {% for date in range %}
+            <option value="{{ loop.index0 }}" {% if page == loop.index0 %}selected{% endif %}>{{ date[0] }}</option>
+        {% endfor %}
+    </select>
+    <p></p>
     <div class="list-group">
         {% for expense in expenses %}
             <div class="list-group-item">
@@ -34,12 +41,17 @@
 {% block scripts %}
     {{ super() }}
     <script>
-        $("body").on("click", "img.img-thumbnail", function () {
-            var image = $('#imagepreview');
-            image.find('> img').attr('src', $(this).attr('src'));
-            image.modal('show');
-            image.on('click', function () {
-                image.modal('hide');
+        $(function () {
+            $("body").on("click", "img.img-thumbnail", function () {
+                var image = $('#imagepreview');
+                image.find('> img').attr('src', $(this).attr('src'));
+                image.modal('show');
+                image.on('click', function () {
+                    image.modal('hide');
+                });
+            });
+            $("#date").on("change", function () {
+                window.location.href = '{{ url_for('index') }}' + this.value;
             });
         });
     </script>

@@ -1,6 +1,6 @@
 import uuid
 import urllib
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from flask.ext.login import login_required, UserMixin, current_user, LoginManager, login_user, logout_user
@@ -10,6 +10,7 @@ from flask import Flask, render_template, url_for, redirect, request
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import Form
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import DecimalField, SelectField, DateField, SubmitField, HiddenField, StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Length, Email
@@ -75,15 +76,35 @@ def verify_password(password, password_hash):
     return check_password_hash(password_hash, password)
 
 
+def date_range(user):
+    def monday(d):
+        d = d or date.today()
+        return d + timedelta(days=-d.weekday())
+
+    dates = []
+    (start, end) = map(monday, db.session.query(func.min(Expense.date), func.max(Expense.date)).filter_by(user=user).first())
+    while end and end >= start:
+        dates.append((end, end + timedelta(days=6)))
+        end = end - timedelta(days=7)
+    return dates
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 
 @app.route('/')
+@app.route('/<int:page>')
 @login_required
-def index():
-    return render_template('index.html', expenses=current_user.expenses)
+def index(page=0):
+    try:
+        dates = date_range(current_user.id)
+        expenses = Expense.query.filter_by(user=current_user.id).filter(Expense.date.between(dates[page][0], dates[page][1])).order_by(
+            Expense.date.desc()).all()
+        return render_template('index.html', page=page, range=dates, expenses=expenses)
+    except IndexError:
+        return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
