@@ -23,10 +23,11 @@
                     <div class="col-xs-4 col-sm-2">
                         <img src="{{ url_for('uploads', image=expense.attachment) }}" onerror="this.src='../static/expenses.jpg';" class="img-thumbnail">
                     </div>
-                    <div class="col-xs-8 col-sm-10" data-id="{{ expense.id }}">
+                    <div class="col-xs-8 col-sm-10">
                         <p class="list-group-item-text">{{ expense.concept }}</p>
                         <p class="list-group-item-text">{{ expense.date }}</p>
                         <p class="list-group-item-text">{{ expense.price }} {{ expense.currency }}</p>
+                        <p class="list-group-item-text"><a href="{{ url_for('edit', eid=expense.id) }}">Edit</a></p>
                     </div>
                 </div>
             </div>
@@ -49,9 +50,6 @@
                 image.on('click', function () {
                     image.modal('hide');
                 });
-            });
-            $("body").on("click", "div[data-id]", function () {
-                window.location.href = '{{ url_for('index') }}edit/' + $(this).data('id');
             });
             $("#date").on("change", function () {
                 window.location.href = '{{ url_for('index') }}' + this.value;
