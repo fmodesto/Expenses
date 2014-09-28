@@ -48,7 +48,10 @@
         {{ add_field(form.date, class='form-control input-lg') }}
         {{ form.submit(class='btn btn-default btn-lg pull-right') }}
     </form>
-    <img id="upload-image" class="upload-image" {% if form.image.data %}src="{{ form.image.data }}"{% endif %}>
+    <img id="upload-image" class="upload-image"
+         {% if form.image.data %}src="{{ form.image.data }}"
+         {% elif form.url.data %}src="{{ url_for('uploads', image=form.url.data) }}"
+         {% endif %}>
 {% endblock %}
 
 {% block scripts %}

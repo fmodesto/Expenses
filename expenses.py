@@ -44,6 +44,7 @@ class LoginForm(Form):
 
 class ExpenseForm(Form):
     image = HiddenField()
+    url = HiddenField()
     price = DecimalField(widget=NumberInput())
     currency = SelectField(choices=app.config['EXPENSES_CURRENCY'])
     concept = SelectField(choices=app.config['EXPENSES_CONCEPT'])
@@ -107,25 +108,6 @@ def index(page=0):
         return redirect(url_for('index'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and verify_password(form.password.data, user.password):
-            login_user(user, form.remember_me.data)
-            return redirect(request.args.get('next') or url_for('index'))
-        flash('Invalid username or password.')
-    return render_template('login.html', form=form)
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
-
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
@@ -146,6 +128,51 @@ def add():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('add.html', form=form)
+
+
+@app.route('/edit/<int:eid>', methods=['GET', 'POST'])
+def edit(eid):
+    expense = Expense.query.filter_by(id=eid).filter_by(user=current_user.id).first()
+    form = ExpenseForm(
+        url=expense.attachment,
+        price=Decimal(expense.price),
+        currency=expense.currency,
+        concept=expense.concept,
+        date=expense.date
+    )
+    if form.validate_on_submit():
+        filename = expense.attachment
+        if form.image.data:
+            filename = str(uuid.uuid4())
+            urllib.urlretrieve(form.image.data, os.path.join(app.config['EXPENSES_UPLOAD'], filename))
+
+        expense.price = str(form.price.data.quantize(TWOPLACES))
+        expense.currency = form.currency.data
+        expense.concept = form.concept.data
+        expense.date = form.date.data
+        expense.attachment = filename
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('add.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and verify_password(form.password.data, user.password):
+            login_user(user, form.remember_me.data)
+            return redirect(request.args.get('next') or url_for('index'))
+        flash('Invalid username or password.')
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 
 @app.route('/uploads/<image>')
