@@ -131,6 +131,7 @@ def add():
 
 
 @app.route('/edit/<int:eid>', methods=['GET', 'POST'])
+@login_required
 def edit(eid):
     expense = Expense.query.filter_by(id=eid).filter_by(user=current_user.id).first()
     form = ExpenseForm(
