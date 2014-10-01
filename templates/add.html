@@ -56,8 +56,8 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="../static/jquery.exif.js"></script>
-    <script src="../static/jquery.canvasResize.js"></script>
+    <script src="{{ url_for('static', filename='jquery.exif.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery.canvasResize.js') }}"></script>
     <script>
         $(function () {
             $('#upload').on("change", function (event) {

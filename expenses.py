@@ -13,7 +13,7 @@ from flask.ext.wtf import Form
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import DecimalField, SelectField, DateField, SubmitField, HiddenField, StringField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, Length, Email
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 from wtforms.widgets.html5 import NumberInput, DateInput
 
 
@@ -42,6 +42,13 @@ class LoginForm(Form):
     submit = SubmitField('Log In')
 
 
+class CreateUserForm(Form):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm', message='Passwords must match')])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Create user')
+
+
 class ExpenseForm(Form):
     image = HiddenField()
     url = HiddenField()
@@ -57,6 +64,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     expenses = db.relationship('Expense')
+
+    def __init__(self, *args, **kwargs):
+        db.Model.__init__(self, *args, **kwargs)
 
 
 class Expense(db.Model):
@@ -166,7 +176,21 @@ def login():
             login_user(user, form.remember_me.data)
             return redirect(request.args.get('next') or url_for('index'))
         flash('Invalid username or password.')
-    return render_template('login.html', form=form)
+    return render_template('form.html', title='Login', form=form)
+
+
+@app.route('/users', methods=['GET', 'POST'])
+@login_required
+def users():
+    form = CreateUserForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            db.session.add(User(email=form.email.data, password=hash_password(form.password.data)))
+            db.session.commit()
+            return redirect(url_for('index'))
+        flash('User already exist.')
+    return render_template('form.html', title='Add user', form=form)
 
 
 @app.route('/logout')

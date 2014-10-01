@@ -21,7 +21,7 @@
             <div class="list-group-item">
                 <div class="row">
                     <div class="col-xs-4 col-sm-2">
-                        <img src="{{ url_for('uploads', image=expense.attachment) }}" onerror="this.src='../static/expenses.jpg';" class="img-thumbnail">
+                        <img src="{{ url_for('uploads', image=expense.attachment) if expense.attachment }}" onerror="this.src='../static/expenses.jpg';" class="img-thumbnail">
                     </div>
                     <div class="col-xs-8 col-sm-10">
                         <p class="list-group-item-text">{{ expense.concept }}</p>
