@@ -6,7 +6,7 @@ from decimal import Decimal
 from flask.ext.login import login_required, UserMixin, current_user, LoginManager, login_user, logout_user
 from flask.helpers import send_from_directory, flash
 import os
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for, redirect, request, abort
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import Form
@@ -57,6 +57,7 @@ class ExpenseForm(Form):
     concept = SelectField(choices=app.config['EXPENSES_CONCEPT'])
     date = DateField(validators=[DataRequired()], widget=DateInput())
     submit = SubmitField('Submit')
+    remove = SubmitField('Delete')
 
 
 class User(db.Model, UserMixin):
@@ -144,6 +145,8 @@ def add():
 @login_required
 def edit(eid):
     expense = Expense.query.filter_by(id=eid).filter_by(user=current_user.id).first()
+    if not expense:
+        abort(403)
     form = ExpenseForm(
         url=expense.attachment,
         price=Decimal(expense.price),
@@ -151,7 +154,11 @@ def edit(eid):
         concept=expense.concept,
         date=expense.date
     )
-    if form.validate_on_submit():
+    if form.remove.data:
+        db.session.delete(expense)
+        db.session.commit()
+        return redirect(url_for('index'))
+    elif form.validate_on_submit():
         filename = expense.attachment
         if form.image.data:
             filename = str(uuid.uuid4())
@@ -164,7 +171,7 @@ def edit(eid):
         expense.attachment = filename
         db.session.commit()
         return redirect(url_for('index'))
-    return render_template('add.html', form=form)
+    return render_template('add.html', form=form, update=True)
 
 
 @app.route('/login', methods=['GET', 'POST'])

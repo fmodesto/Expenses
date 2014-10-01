@@ -46,6 +46,7 @@
         {% endcall %}
         {{ add_field(form.concept, class='form-control input-lg') }}
         {{ add_field(form.date, class='form-control input-lg') }}
+        {% if update %}{{ form.remove(class='btn btn-danger btn-lg pull-left') }}{% endif %}
         {{ form.submit(class='btn btn-default btn-lg pull-right') }}
     </form>
     <img id="upload-image" class="upload-image"

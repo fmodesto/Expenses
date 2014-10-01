@@ -37,10 +37,6 @@ input[type=number].input-lg {
     color: #ffffff;
 }
 
-.image-preview {
-    padding: 10px 0 0 10px;
-}
-
 .image-preview > img {
     max-width: 100%;
     max-height: 100%;
